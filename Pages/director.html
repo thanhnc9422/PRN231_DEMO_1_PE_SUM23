@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+    <h3>Search Directors</h3>
+    <input type="text" placeholder="Nationality" id="nationality" />
+    <input type="text" placeholder="Gender" id="gender" />
+    <input type="button" id="btnSearch" value="Search" />
+
+
+    <!--form create director-->
+    <form>
+        <label for="fullName">Full Name:</label><br>
+        <input type="text" id="fullName" name="fullName" required><br><br>
+
+        <label for="gender">Gender:</label><br>
+        <input type="radio" id="male" name="gender" value="male" required>
+
+        <label for="male">Male</label><br>
+        <input type="radio" id="female" name="gender" value="female">
+        <label for="female">Female</label><br><br>
+
+        <label for="dob">Date of Birth:</label><br>
+        <input type="date" id="dob" name="dob" required><br><br>
+
+        <label for="nationality">Nationality:</label><br>
+        <input type="text" id="nationality" name="nationality" required>
+
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" rows="4" cols="50"></textarea><br><br>
+
+        <input type="button" id="btnCreate" value="Submit">
+    </form>
+    <!------------------------------>
+    <div id="ShowDetail">
+    </div>
+
+    <table id="table-gg">
+    </table>
+</body>
+<script src="../lib/jquery/dist/jquery.min.js"></script>
+<script src="../lib/jquery/dist/jquery.js"></script>
+
+<script>
+    $(document).ready(() => {
+        getAllDirector();
+    });
+
+//create director
+    $(document).on('click', '#btnCreate', function () {
+        let fullName = $('#fullName').val();
+        let gender = $('input[name="gender"]:checked').val();
+        let dob = $('#dob').val();
+        let nationality = $('#nationality').val();
+        let description = $('#description').val();
+        let isMale = gender === "male"; // Check if gender is male
+        const dataJson = {
+            fullName: fullName,
+            male: isMale,
+            dob: dob,
+            nationality: nationality,
+            description: description
+        };
+    
+            $.ajax({
+                url: `https://localhost:5000/api/Director/Create`,
+                method: 'Post',
+                data: JSON.stringify(dataJson),
+                contentType: "application/json",
+                success: (data) => {
+                    console.log(data)
+                    $("#ShowDetail").empty();
+                    $("#ShowDetail").append(`<p>List of movies of '${data.fullName}'</p>`);
+                    $("#ShowDetail").append(`<ul>`);
+                    data.movies.forEach(item => {
+                        var htmlBody = `                      
+                       <li>${item.title} - release year: ${item.releaseYear}</li>
+                              `;
+                        $("#ShowDetail").append(htmlBody);
+                    });
+                    $("#ShowDetail").append(`</ul>`);
+
+
+                },
+                error: () => { alert("not found data!") }
+
+            });
+    })
+//---------------
+
+    const getAllDirector = () => $.ajax({
+        url: 'https://localhost:5000/api/Director/GetDirectors//',
+        method: 'GET',
+        contentType: "application/json",
+        success: (data) => loadTableData(data),
+        error: () => { alert("not found data!") }
+    })
+
+    const loadTableData = (data) => {
+        $("#table-gg").empty();
+        var htmlHeader = `
+ <thead>
+     <tr>
+         <th>DirectorId</th>
+         <th>Fullname</th>
+         <th>Gender</th>
+         <th>Dob</th>
+         <th>Description</th>
+         <th>Nationality</th>
+     </tr>
+ </thead>
+                                   `;
+        $("#table-gg").append(htmlHeader);
+        $("#table-gg").append("<tbody>");
+        data.forEach(item => {
+            var htmlBody = `
+                                        <tr>
+                                        <td>${item.id}</td>
+                                        <td>${item.fullname}</td>
+                                        <td>${item.gender}</td>
+                                        <td>${item.dob}</td>
+                                        <td>${item.description}</td>
+                                        <td>${item.nationality}</td>
+                                       <td><a href="javascript:void(0)" data-id="${item.id}" id="DetailDirector">Detail</a></td>
+                                        </tr>
+                                            `;
+            $("#table-gg").append(htmlBody);
+        });
+        $("#table-gg").append("</tbody>");
+    }
+
+    $(document).on('click', '#DetailDirector', function () {
+        let id = $(this).attr('data-id');
+        const data = 
+            $.ajax({
+                url: `https://localhost:5000/api/Director/GetDirector/${id}`,
+                method: 'GET',
+                contentType: "application/json",
+                success: (data) => {
+                    console.log(data)
+                    $("#ShowDetail").empty();
+                    $("#ShowDetail").append(`<p>List of movies of '${data.fullName}'</p>`);
+                    $("#ShowDetail").append(`<ul>`);
+                    data.movies.forEach(item => {
+                        var htmlBody = `                      
+                          <li>${item.title} - release year: ${item.releaseYear}</li>
+                                 `;
+                        $("#ShowDetail").append(htmlBody);
+                    });
+                    $("#ShowDetail").append(`</ul>`);
+
+
+                },
+                error: () => { alert("not found data!") }
+
+            });
+    })
+
+    $(document).on('click', '#btnSearch', () => {
+        let nationality = $('#nationality').val(), gender = $('#gender').val();
+        $.ajax({
+            url: `https://localhost:5000/api/Director/GetDirectors/${nationality}/${gender}`,
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => { loadTableData(data), console.log(data) },
+            error: () => { alert("not found data!") }
+
+        });
+    });
+</script>
+
+</html>
