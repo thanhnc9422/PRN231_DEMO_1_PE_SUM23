@@ -17,7 +17,7 @@ namespace PRN231_Trial_PE_1.Controllers
         }
         private DirectorDAO directorDAO = new DirectorDAO();
         [HttpGet("GetDirectors/{nationality}/{gender}")]
-        public ActionResult<List<DirectorDTO>> GetDirectors(string nationality, string gender)
+        public ActionResult<List<DirectorOnlyDTO>> GetDirectors(string nationality, string gender)
         {
 
             return directorDAO.GetDirectors(nationality, gender.Equals("male")? true: false);
@@ -31,13 +31,15 @@ namespace PRN231_Trial_PE_1.Controllers
         public ActionResult Create(Director director)
         {
             try {
-                directorDAO.Create(director);
+                _context.Directors.Add(director);
+                var totalDirectorAdd = _context.SaveChanges();
+                return Ok(totalDirectorAdd);
             }
             catch (Exception ex)
             {
                 return Conflict("There is an error while adding");
             }
-         return Ok(1);
+
           
         }
     }

@@ -12,9 +12,9 @@ namespace PRN231_Trial_PE_1.DAO
         {
             _context = context;
         }
-        public List<DirectorDTO> GetDirectors(string nationality, bool gender)
+        public List<DirectorOnlyDTO> GetDirectors(string nationality, bool gender)
         {
-            return _context.Directors.Where(x => x.Nationality.Equals(nationality) && x.Male == gender).Select(x => new DirectorDTO { Id = x.Id, FullName = x.FullName, Gender = x.Male? "Male":"Female", Dob = x.Dob, DobString = x.Dob.ToString("MM/dd/yyyy"),Nationality = x.Nationality, Description = x.Description}).ToList();
+            return _context.Directors.Where(x => x.Nationality.Equals(nationality) && x.Male == gender).Select(x => new DirectorOnlyDTO { Id = x.Id, FullName = x.FullName, Gender = x.Male? "Male":"Female", Dob = x.Dob, DobString = x.Dob.ToString("MM/dd/yyyy"),Nationality = x.Nationality, Description = x.Description}).ToList();
         }
         public DirectorDTO GetDirector(int id)
         {
